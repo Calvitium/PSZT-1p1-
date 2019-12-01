@@ -1,10 +1,13 @@
 package Evolutionary;
+
+
 import static Evolutionary.Parameters.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Candidate implements Cloneable {
-;;
+
     private List<Pile> piles;
     private List<Pile> pilesSortedByX;
     private List<Pile[]> triangles;
@@ -42,22 +45,18 @@ public class Candidate implements Cloneable {
     }
 
     public boolean isCircleCovered() {
-        sortPiles();
         checkIfNotContained();
         if(!checkIfCoversBorder())
             return false;
         createDelaunayTriangulation();
+        if(!checkTriangles())
+            return false;
         return true;
-    }
-
-    private void sortPiles() {
-        piles.sort((o1, o2) -> (int) (o2.getRadius() - o1.getRadius()));
-        pilesSortedByX.sort((o1, o2) -> (int) (o1.getX() - o2.getX()));
     }
 
     private void checkIfNotContained() { // checks whether a bigger circle doesn't contain a smaller one
         for (Pile pile : getPiles()) {
-            for (int i = getPiles().indexOf(pile) + 1; i < getPiles().size(); i++) {
+            for (var i = getPiles().indexOf(pile) + 1; i < getPiles().size(); i++) {
                 float distance = distanceBetweenPiles(getPiles().get(i), pile);
                 if (distance + getPiles().get(i).getRadius() <= pile.getRadius()) {
                     getSortedPiles().remove(getPiles().get(i));
@@ -211,7 +210,8 @@ public class Candidate implements Cloneable {
 
     }
 
-    private float calculateCos(Pile a, Pile b, Pile c) { // calculates cos of the angle between ac and bc
+    private float calculateCos(Pile a, Pile b, Pile c) // calculates cos of the angle between ac and bc
+    {
         float acX, acY, bcX, bcY;//create vectors ac and ab
         acX = c.getX() - a.getX();
         acY = c.getY() - a.getY();
@@ -227,10 +227,10 @@ public class Candidate implements Cloneable {
 
     }
 
+
     private float distanceBetweenPiles(Pile a, Pile b) {
         return distanceBetweenToPoints(a.getX(),a.getY(),b.getX(),b.getY());
     }
-
     private float distanceBetweenToPoints(float ax,float ay,float bx,float by){
         return (float) (Math.sqrt(ax - bx) * (ax - bx) + (ay - by) * (ay - by));
     }
@@ -240,25 +240,52 @@ public class Candidate implements Cloneable {
             float[] intersections01 = findIntersections(triangle[0],triangle[1]);
             float[] intersections02 = findIntersections(triangle[0],triangle[2]);
             float[] intersections12 = findIntersections(triangle[2],triangle[1]);
-            List<Vector2f> validIntersections = null;
+            List<IntersectionPair> validIntersections = null;
             if(intersections01.length > 0)
-                validIntersections.add(findRightIntersection(intersections01,triangle[2]));
+                validIntersections.add(new IntersectionPair( findRightIntersection(intersections01,triangle[2]),triangle,2));
             if(intersections02.length >0)
-                validIntersections.add(findRightIntersection(intersections02,triangle[1]));
+                validIntersections.add(new IntersectionPair( findRightIntersection(intersections02,triangle[1]),triangle,1));
             if(intersections12.length >0)
-                validIntersections.add(findRightIntersection(intersections12,triangle[0]));
+                validIntersections.add(new IntersectionPair( findRightIntersection(intersections12,triangle[0]),triangle,0));
 
-            if(validIntersections.size() <=1)
+            if(validIntersections == null || validIntersections.size() <=1)
                 return false;
-            else if(validIntersections.size() == 2){//to finish
-                return false;
+            else if(validIntersections.size() == 2)//to finish
+                if(!isTriangleCovered2(validIntersections))
+                    return false;
+            else{ // validIntersections.size() == 3
+                if(!isTriangleCovered3(validIntersections))
+                    return false;
             }
 
-
-
-
         }
+        return true;
+    }
+
+
+
+    private boolean isTriangleCovered2(List<IntersectionPair> validIntersections){
+        int opp = validIntersections.get(0).opp;
+        int i = (opp + 1) %3;
+        int j = (opp + 2) % 3;
+        Straight straight = new Straight(validIntersections.get(0).piles[i],validIntersections.get(0).piles[j]);
+        if(straight.isOverTheStaright(validIntersections.get(0).intersection )
+                != straight.isOverTheStaright(new Vector2f(validIntersections.get(0).piles[opp])))
+            return true;
         return false;
+
+    }
+    private boolean isTriangleCovered3(List<IntersectionPair> validIntersections) {
+        for(IntersectionPair intersectionPair:validIntersections){
+            int opp = intersectionPair.opp;
+            int i = (opp + 1) %3;
+            int j = (opp + 2) % 3;
+            Straight straight = new Straight(intersectionPair.piles[i],intersectionPair.piles[j]);
+            if(straight.isOverTheStaright(intersectionPair.intersection )
+                    != straight.isOverTheStaright(new Vector2f(intersectionPair.piles[opp])))
+                return false;
+        }
+        return true;
     }
 
     private Vector2f findRightIntersection(float[] intersection,Pile vertex){
@@ -270,6 +297,8 @@ public class Candidate implements Cloneable {
             return new Vector2f(intersection[0],intersection[2]);
     }
 
+
+
     private void resize() {
         for(Pile p : piles)
             p.setRadius(p.getRadius()*1.1f);
@@ -278,7 +307,6 @@ public class Candidate implements Cloneable {
     void mutate(float sigma) {
         for(Pile p : piles)
             p.mutate(sigma);
-        while (!isCircleCovered())
-            resize();
     }
+
 }
