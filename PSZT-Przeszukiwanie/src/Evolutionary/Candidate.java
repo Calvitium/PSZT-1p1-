@@ -49,7 +49,8 @@ public class Candidate implements Cloneable {
         if(!checkIfCoversBorder())
             return false;
         createDelaunayTriangulation();
-
+        if(!checkTriangles())
+            return false;
         return true;
     }
 
@@ -66,13 +67,13 @@ public class Candidate implements Cloneable {
     }
 
     private boolean checkIfCoversBorder() {
-        Pile tree = new Pile(0.0f, 0.0f, RD);
-        Pile assistant = new Pile(0.0f, RD, 0.0f);
+        Pile tree = new Pile(0.0f, 0.0f, R);
+        Pile assistant = new Pile(0.0f, R, 0.0f);
         for (Pile pile : getPiles()) {
             float[] intersections = findIntersections(tree, pile);
             if (intersections.length == 4) {
-                float offset = (float) Math.acos(calculateCos(intersections[0], intersections[2], 0.0f, RD));
-                float offset2 = (float) Math.acos(calculateCos(intersections[1], intersections[3], 0.0f, RD));
+                float offset = (float) Math.acos(calculateCos(intersections[0], intersections[2], 0.0f, R));
+                float offset2 = (float) Math.acos(calculateCos(intersections[1], intersections[3], 0.0f, R));
                 if (intersections[0] < 0.0f)
                     offset += Math.PI;
                 if (intersections[2] < 0.0f)
@@ -239,26 +240,54 @@ public class Candidate implements Cloneable {
             float[] intersections01 = findIntersections(triangle[0],triangle[1]);
             float[] intersections02 = findIntersections(triangle[0],triangle[2]);
             float[] intersections12 = findIntersections(triangle[2],triangle[1]);
-            List<Vector2f> validIntersections = null;
+            List<IntersectionPair> validIntersections = null;
             if(intersections01.length > 0)
-                validIntersections.add(findRightIntersection(intersections01,triangle[2]));
+                validIntersections.add(new IntersectionPair( findRightIntersection(intersections01,triangle[2]),triangle,2));
             if(intersections02.length >0)
-                validIntersections.add(findRightIntersection(intersections02,triangle[1]));
+                validIntersections.add(new IntersectionPair( findRightIntersection(intersections02,triangle[1]),triangle,1));
             if(intersections12.length >0)
-                validIntersections.add(findRightIntersection(intersections12,triangle[0]));
+                validIntersections.add(new IntersectionPair( findRightIntersection(intersections12,triangle[0]),triangle,0));
 
-            if(validIntersections.size() <=1)
+            if(validIntersections == null || validIntersections.size() <=1)
                 return false;
-            else if(validIntersections.size() == 2){//to finish
-                return false;
+            else if(validIntersections.size() == 2)//to finish
+                if(!isTriangleCovered2(validIntersections))
+                    return false;
+            else{ // validIntersections.size() == 3
+                if(!isTriangleCovered3(validIntersections))
+                    return false;
             }
 
-
-
-
         }
-        return false;
+        return true;
     }
+
+
+
+    private boolean isTriangleCovered2(List<IntersectionPair> validIntersections){
+        int opp = validIntersections.get(0).opp;
+        int i = (opp + 1) %3;
+        int j = (opp + 2) % 3;
+        Straight straight = new Straight(validIntersections.get(0).piles[i],validIntersections.get(0).piles[j]);
+        if(straight.isOverTheStaright(validIntersections.get(0).intersection )
+                != straight.isOverTheStaright(new Vector2f(validIntersections.get(0).piles[opp])))
+            return true;
+        return false;
+
+    }
+    private boolean isTriangleCovered3(List<IntersectionPair> validIntersections) {
+        for(IntersectionPair intersectionPair:validIntersections){
+            int opp = intersectionPair.opp;
+            int i = (opp + 1) %3;
+            int j = (opp + 2) % 3;
+            Straight straight = new Straight(intersectionPair.piles[i],intersectionPair.piles[j]);
+            if(straight.isOverTheStaright(intersectionPair.intersection )
+                    != straight.isOverTheStaright(new Vector2f(intersectionPair.piles[opp])))
+                return false;
+        }
+        return true;
+    }
+
     private Vector2f findRightIntersection(float[] intersection,Pile vertex){
         float dis1 = distanceBetweenToPoints(intersection[0],intersection[2],vertex.getX(),vertex.getY());
         float dis2 = distanceBetweenToPoints(intersection[1],intersection[3],vertex.getX(),vertex.getY());
