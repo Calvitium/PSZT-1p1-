@@ -1,4 +1,6 @@
 package Evolutionary;
+import java.util.Random;
+
 import static Evolutionary.Parameters.R;
 import static java.lang.Math.*;
 
@@ -7,7 +9,7 @@ public class Pile {
     private float Y;
     private float radius;
 
-    public Pile() {
+    Pile() {
         float a = (float)(Math.random() * 2 *PI);
         float r = (float)(R * sqrt(Math.random()));
         X = (float) (r * cos(a));
@@ -20,7 +22,7 @@ public class Pile {
         this.radius = radius;
     }
 
-    public Pile(Pile p) {
+    Pile(Pile p) {
         this.X = p.X;
         this.Y = p.Y;
         this.radius = p.radius;
@@ -34,11 +36,26 @@ public class Pile {
         return (float)sqrt(pow(X, 2) + pow(Y, 2));
     }
 
-    public void setRadius(float newRadius) {
+    void setRadius(float newRadius) {
         this.radius = newRadius;
     }
 
-    public void mutate(float sigma) {
+    void mutate(float sigma) {
+        float tempX, tempY;
+        Random r = new Random();
+        do{
+            tempX = X + (float)r.nextGaussian()*sigma;
+            tempY = Y + (float)r.nextGaussian()*sigma;
+        }while( (float)(sqrt(pow(tempX, 2) + pow(tempY, 2))) > R );
+        X = tempX;
+        Y = tempY;
+        radius = (float) (radius + r.nextGaussian()*sigma*R);
+    }
 
+    float getX() {
+        return X;
+    }
+    float getY() {
+        return Y;
     }
 }
