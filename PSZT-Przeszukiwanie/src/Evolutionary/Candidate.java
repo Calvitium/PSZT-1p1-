@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Candidate implements Cloneable {
-
+;;
     private List<Pile> piles;
     private List<Pile> pilesSortedByX;
     private List<Pile[]> triangles;

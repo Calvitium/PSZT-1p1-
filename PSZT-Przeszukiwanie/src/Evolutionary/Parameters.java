@@ -4,7 +4,8 @@ import java.io.*;
 import java.util.Scanner;
 
 public class Parameters {
-
+;;
+;;;
     public static float R;
     public static float W1;
     public static float W2;
