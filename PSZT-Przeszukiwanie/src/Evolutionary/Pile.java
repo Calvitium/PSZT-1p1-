@@ -22,11 +22,16 @@ public class Pile {
         this.radius = radius;
     }
 
+    float getX() {return X;}
+    float getY() {return Y;}
+
+
     Pile(Pile p) {
         this.X = p.X;
         this.Y = p.Y;
         this.radius = p.radius;
     }
+
 
     float getRadius() {
         return radius;
@@ -52,10 +57,4 @@ public class Pile {
         radius = (float) (radius + r.nextGaussian()*sigma*R);
     }
 
-    float getX() {
-        return X;
-    }
-    float getY() {
-        return Y;
-    }
 }

@@ -1,6 +1,16 @@
+
+import static Evolutionary.Parameters.*;
+import Evolutionary.Candidate;
+
+import java.io.Console;
+import java.util.Scanner;
+
+import static Evolutionary.Algorithm1p1.J;
+
 import Evolutionary.Algorithm1p1;
 import java.util.Vector;
 import static Evolutionary.Parameters.collectInput;
+
 
 
 public class Main {
@@ -18,5 +28,6 @@ public class Main {
             attempt.showResult();
         }
     }
+
 
 }

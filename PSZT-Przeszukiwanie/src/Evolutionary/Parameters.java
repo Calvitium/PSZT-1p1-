@@ -3,11 +3,14 @@ package Evolutionary;
 import java.util.Scanner;
 
 public class Parameters {
-    static float R;
-    static float W1;
-    static float W2;
-    static float W3;
-    static int N;
+
+    public static float R;
+    public static float W1;
+    public static float W2;
+    public static float W3;
+    public static int N;
+    public static final float EPS = 0.000001f;
+
 
     public static void collectInput() {
         Scanner reader = new Scanner(System.in);
