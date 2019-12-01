@@ -13,7 +13,8 @@ public class Pile {
         this.Y = y;
         this.radius = radius;
     }
-
+    float getX() {return X;}
+    float getY() {return Y;}
     float getRadius() {
         return radius;
     }
