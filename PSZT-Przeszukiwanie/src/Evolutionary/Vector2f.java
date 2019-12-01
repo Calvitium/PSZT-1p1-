@@ -8,5 +8,9 @@ public class Vector2f {
         this.x = x;
         this.y  =y;
     }
+    Vector2f(Pile pile){
+        this.x = pile.getX();
+        this.y  =pile.getY();
+    }
 
 }
