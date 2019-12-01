@@ -1,16 +1,40 @@
 package Evolutionary;
 
+
 import static Evolutionary.Parameters.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
+public class Candidate implements Cloneable {
 
-public class Candidate {
     private List<Pile> piles;
     private List<Pile> pilesSortedByX;
     private List<Pile[]> triangles;
     private List<Vector2f> BorderCover;
 
+
+    Candidate(int n)  {
+        piles = new ArrayList<>();
+        for(int i = 0; i<n; i++)
+            piles.add(new Pile());
+        while(!isCircleCovered())
+            resize();
+    }
+
+    private Candidate() {
+        piles = new ArrayList<>();
+    }
+
+    @Override
+    public Object clone() throws
+                CloneNotSupportedException
+    {
+        Candidate candidate = new Candidate();
+        for(Pile p : piles)
+            candidate.getPiles().add(new Pile(p));
+        return candidate;
+    }
 
     List<Pile> getPiles() {
         return piles;
@@ -20,7 +44,7 @@ public class Candidate {
         return pilesSortedByX;
     }
 
-    public boolean checkIfFilled() {
+    public boolean isCircleCovered() {
         checkIfNotContained();
         if(!checkIfCoversBorder())
             return false;
@@ -244,5 +268,16 @@ public class Candidate {
             return new Vector2f(intersection[0],intersection[2]);
     }
 
+
+
+    private void resize() {
+        for(Pile p : piles)
+            p.setRadius(p.getRadius()*1.1f);
+    }
+
+    void mutate(float sigma) {
+        for(Pile p : piles)
+            p.mutate(sigma);
+    }
 
 }

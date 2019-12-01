@@ -1,3 +1,4 @@
+
 import static Evolutionary.Parameters.*;
 import Evolutionary.Candidate;
 
@@ -6,42 +7,27 @@ import java.util.Scanner;
 
 import static Evolutionary.Algorithm1p1.J;
 
+import Evolutionary.Algorithm1p1;
+import java.util.Vector;
+import static Evolutionary.Parameters.collectInput;
+
+
 
 public class Main {
 
-    public static void main(String[] args) {
-        Candidate x, y;
-        x = new Candidate();
-        float radian = (float)Math.acos(x.calculateCos(3.0f,0.0f,-3.0f,0.0f));
-        float offset = (float)Math.acos(x.calculateCos(3.0f,0.0f,0.0f,3.0f));
-        float offset2 = (float)Math.acos(x.calculateCos(-3.0f,0.0f,0.0f,3.0f));
-        System.out.println(radian);
-        System.out.println(offset);
-        System.out.println(offset2);
-        //collectInput(); //0
-        //1. generateFirstEntity;
-        //2. y = x + sigm*N(0,I)
-        //  x = J(x) > J(y) ? y : x; //3
-        //4. update FI
-        //5. update SIGMA
-        //6. stop || goto 2.
+    public static void main(String[] args) throws InterruptedException {
+        collectInput();
+        Vector<Algorithm1p1> attempts = new Vector<>(2);
+        for(Algorithm1p1 attempt : attempts){
+            attempt.run();
+        }
+        for(Algorithm1p1 attempt : attempts){
+            attempt.join();
+        }
+        for(Algorithm1p1 attempt : attempts){
+            attempt.showResult();
+        }
     }
 
-    private static void collectInput() {
-        //float RD, W1, W2, W3;
-        //int N;
-       Scanner reader = new Scanner(System.in);
-        System.out.print("Enter the max. number of piles: ");
-        N = reader.nextInt();
-        System.out.print("Enter the radius: ");
-        RD = reader.nextFloat();
-        System.out.print("Enter W1: ");
-        W1 = reader.nextFloat();
-        System.out.print("Enter W2: ");
-        W2 = reader.nextFloat();
-        System.out.print("Enter W3: ");
-        W3 = reader.nextFloat();
 
-
-    }
 }
