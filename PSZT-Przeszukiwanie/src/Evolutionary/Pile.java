@@ -56,4 +56,7 @@ import static java.lang.Math.*;
         radius = (float) (radius + r.nextGaussian()*sigma*R);
     }
 
-}
+     public boolean isPointInRange(Vector2f point) {
+         return sqrt(pow(X-point.x, 2) + pow(Y-point.y, 2)) <= radius;
+     }
+ }

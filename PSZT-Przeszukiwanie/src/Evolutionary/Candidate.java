@@ -26,7 +26,7 @@ public class Candidate implements Cloneable {
             pilesR.add(piles.get(i));
             pilesSortedByX.add(piles.get(i));
         }
-        while(!isCircleCovered())
+        while(!probIsCircleCovered(1000))
             resize();
 
     }
@@ -57,7 +57,18 @@ public class Candidate implements Cloneable {
         return pilesSortedByX;
     }
 
-     boolean isCircleCovered() {
+    private boolean probIsCircleCovered(int n) {
+        Vector2f point;
+        for(int i = 0; i<n; i++) {
+            point = new Vector2f(Vector2f.random());
+            for(Pile p : piles)
+                if(p.isPointInRange(point))
+                    return true;
+        }
+        return false;
+    }
+
+    boolean isCircleCovered() {
         sortPiles();
         checkIfNotContained();
         if(!checkIfCoversBorder())

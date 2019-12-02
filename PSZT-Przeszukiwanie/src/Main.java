@@ -11,6 +11,7 @@ public class Main {
         showParameters();
        Algorithm1p1 alg = new Algorithm1p1();
         alg.run();
+        alg.showResult();
        /* Vector<Algorithm1p1> attempts = new Vector<>(2);
         for(Algorithm1p1 attempt : attempts){
             attempt.run();
