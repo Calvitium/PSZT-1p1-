@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Candidate implements Cloneable {
-    private List<Pile> pilesR;
     private List<Pile> piles;
+    private List<Pile> pilesR;
     private List<Pile> pilesSortedByX;
     private List<Pile[]> triangles;
     private List<Vector2f> BorderCover;
@@ -61,11 +61,14 @@ public class Candidate implements Cloneable {
         Vector2f point;
         for(int i = 0; i<n; i++) {
             point = new Vector2f(Vector2f.random());
-            for(Pile p : piles)
-                if(p.isPointInRange(point))
-                    return true;
+            for(Pile p : piles) {
+                if (p.isPointInRange(point))
+                    break;
+                else if (piles.get(piles.size() - 1) == p && !p.isPointInRange(point))
+                    return false;
+            }
         }
-        return false;
+        return true;
     }
 
     boolean isCircleCovered() {
@@ -342,6 +345,8 @@ public class Candidate implements Cloneable {
      void mutate(float sigma) {
         for(Pile p : piles)
             p.mutate(sigma);
+        while(!probIsCircleCovered(1000))
+            resize();
     }
 
 }

@@ -48,8 +48,8 @@ import static java.lang.Math.*;
         float tempX, tempY;
         Random r = new Random();
         do{
-            tempX = X + (float)r.nextGaussian()*sigma;
-            tempY = Y + (float)r.nextGaussian()*sigma;
+            tempX = X + (float)r.nextGaussian()*sigma*R;
+            tempY = Y + (float)r.nextGaussian()*sigma*R;
         }while( (float)(sqrt(pow(tempX, 2) + pow(tempY, 2))) > R );
         X = tempX;
         Y = tempY;
