@@ -1,6 +1,6 @@
 package Evolutionary;
 
-public class Straight {
+ class Straight {
     private float a;
     private float b;
 
@@ -8,11 +8,9 @@ public class Straight {
         a = (pile1.getY() - pile2.getY())/(pile1.getX() - pile2.getX());
         b = pile1.getY() - a*pile1.getX();
     }
-    public boolean isOverTheStaright(Vector2f point){
+    boolean isOverTheStraight(Vector2f point){
         float temp = a*point.x +b;
-        if(temp > point.y)
-            return false;
-        return true;
+        return !(temp > point.y);
 
     }
 }
