@@ -62,10 +62,10 @@ public class Candidate implements Cloneable {
         for(int i = 0; i<n; i++) {
             point = new Vector2f(Vector2f.random());
             for(Pile p : piles)
-                if(p.isPointInRange(point))
-                    return true;
+                if(!p.isPointInRange(point))
+                    return false;
         }
-        return false;
+        return true;
     }
 
     boolean isCircleCovered() {
@@ -231,6 +231,7 @@ public class Candidate implements Cloneable {
                     }
                 }
             }
+            triangles.add(new Pile[3]);
             triangles.get(j)[0] = pile1;
             triangles.get(j)[1] = pile2;
             triangles.get(j)[2] = getSortedPiles().get(smallestCosIndex);
