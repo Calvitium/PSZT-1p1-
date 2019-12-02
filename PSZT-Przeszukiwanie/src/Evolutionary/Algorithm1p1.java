@@ -7,7 +7,7 @@ import static Evolutionary.Parameters.*;
 import static java.lang.Math.pow;
 
 public class Algorithm1p1 extends Thread {
-    private final int M_LAST_ITERATIONS = 10;
+    private final int M_LAST_ITERATIONS = 20;
     private final static float C1 = 0.82f;
     private final static float C2 = 1.2f;
     private final static float FI_BORDER = 0.2f;
@@ -30,6 +30,7 @@ public class Algorithm1p1 extends Thread {
     public void run() {
         for (int i = 1; i <= N; i++) {
             try {
+                System.out.println("===================== " + i + " PILES=======================");
                 Candidate temp = runProcedure(i);
                 result = J(result) > J(temp) ? temp : result;
             } catch (CloneNotSupportedException e) {
@@ -48,13 +49,19 @@ public class Algorithm1p1 extends Thread {
             /*3*/
             x = chooseBetterCandidate(x, y);
             /*4*/
-            fi = chosenY / M_LAST_ITERATIONS;
-            if (generation % M_LAST_ITERATIONS == 0)
-                /*5*/ updateSigma();
+            fi = (float)chosenY / M_LAST_ITERATIONS;
+            if (++generation % M_LAST_ITERATIONS == 0)
+                /*5*/ {
+                    updateSigma();
+                    System.out.print("Generation: " + generation + ",  ");
+                    showResult(x);
+            }
             /*6*/
-        } while (sigma >= SIGMA_0);
+        } while (generation<N * 100);
         M_LastCandidates.clear();
         chosenY = 0;
+        generation = 0;
+        sigma = SIGMA_0;
         return x;
     }
 
@@ -102,6 +109,11 @@ public class Algorithm1p1 extends Thread {
     public void showResult() {
         System.out.print("Result:\n");
         for (Pile p : result.getPiles())
-            System.out.println("x = " + p.getX() + ", y = " + p.getY() + ", r = " + p.getRadius());
+            System.out.println("x = " + p.getX() + ", y = " + p.getY() + ", r = " + p.getRadius() + ", J(RESULT) = " + J(result));
+    }
+    public void showResult(Candidate x) {
+        System.out.print("Result:\n");
+        for (Pile p : x.getPiles())
+            System.out.println("x = " + p.getX() + ", y = " + p.getY() + ", r = " + p.getRadius() + ", J(X) = " + J(x));
     }
 }

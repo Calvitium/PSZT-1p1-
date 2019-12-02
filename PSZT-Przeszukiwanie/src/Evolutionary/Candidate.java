@@ -61,9 +61,12 @@ public class Candidate implements Cloneable {
         Vector2f point;
         for(int i = 0; i<n; i++) {
             point = new Vector2f(Vector2f.random());
-            for(Pile p : piles)
-                if(!p.isPointInRange(point))
+            for(Pile p : piles) {
+                if (p.isPointInRange(point))
+                    break;
+                else if (piles.get(piles.size() - 1) == p && !p.isPointInRange(point))
                     return false;
+            }
         }
         return true;
     }
@@ -231,7 +234,6 @@ public class Candidate implements Cloneable {
                     }
                 }
             }
-            triangles.add(new Pile[3]);
             triangles.get(j)[0] = pile1;
             triangles.get(j)[1] = pile2;
             triangles.get(j)[2] = getSortedPiles().get(smallestCosIndex);
