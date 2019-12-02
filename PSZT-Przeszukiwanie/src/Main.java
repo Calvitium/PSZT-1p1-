@@ -9,8 +9,8 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
         collectInput("Input");
         showParameters();
-       Algorithm1p1 alg = new Algorithm1p1();
-        alg.run();
+        Algorithm1p1 algorithm1p1 = new Algorithm1p1();
+        algorithm1p1.run();
        /* Vector<Algorithm1p1> attempts = new Vector<>(2);
         for(Algorithm1p1 attempt : attempts){
             attempt.run();

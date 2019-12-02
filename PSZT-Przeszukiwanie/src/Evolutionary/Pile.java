@@ -4,7 +4,7 @@ import java.util.Random;
 import static Evolutionary.Parameters.R;
 import static java.lang.Math.*;
 
- class Pile {
+public class Pile {
     private float X;
     private float Y;
     private float radius;
@@ -16,7 +16,7 @@ import static java.lang.Math.*;
         Y = (float)(r * sin(a));
         radius = (float)(Math.random() * R);
     }
-     Pile(float x, float y, float radius) {
+    public Pile(float x, float y, float radius) {
         this.X = x;
         this.Y = y;
         this.radius = radius;
@@ -26,13 +26,14 @@ import static java.lang.Math.*;
     float getY() {return Y;}
 
 
-     Pile(Pile p) {
+    Pile(Pile p) {
         this.X = p.X;
         this.Y = p.Y;
         this.radius = p.radius;
     }
 
-     float getRadius() {
+
+    float getRadius() {
         return radius;
     }
 
@@ -56,4 +57,7 @@ import static java.lang.Math.*;
         radius = (float) (radius + r.nextGaussian()*sigma*R);
     }
 
+    public boolean isPointInRange(Vector2f point) {
+        return sqrt(pow(X-point.x, 2) + pow(Y-point.y, 2)) <= radius;
+    }
 }

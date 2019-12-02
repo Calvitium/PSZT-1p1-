@@ -1,6 +1,6 @@
 package Evolutionary;
 
-class IntersectionPair {
+public class IntersectionPair {
     Pile[] piles;
     Vector2f intersection;
     int opp;

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Candidate implements Cloneable {
-    private List<Pile> pilesR;
+
     private List<Pile> piles;
     private List<Pile> pilesSortedByX;
     private List<Pile[]> triangles;
@@ -16,24 +16,25 @@ public class Candidate implements Cloneable {
 
     Candidate(int n)  {
         piles = new ArrayList<>();
-        pilesR = new ArrayList<>();
-        pilesSortedByX = new ArrayList<>();
-        triangles = new ArrayList<>();
-        BorderCover = new ArrayList<>();
-
-        for(int i = 0; i<n; i++) {
+        for(int i = 0; i<n; i++)
             piles.add(new Pile());
-            pilesR.add(piles.get(i));
-            pilesSortedByX.add(piles.get(i));
-        }
-        while(!isCircleCovered())
+        while(!probIsCircleCovered(n))
             resize();
+    }
 
+    private boolean probIsCircleCovered(int n) {
+        Vector2f point;
+        for(int i = 0; i<n; i++) {
+            point = new Vector2f(Vector2f.random());
+            for(Pile p : piles)
+                if(p.isPointInRange(point))
+                    return true;
+        }
+        return false;
     }
 
     private Candidate() {
         piles = new ArrayList<>();
-        pilesR = new ArrayList<>();
     }
 
     @Override
@@ -41,46 +42,36 @@ public class Candidate implements Cloneable {
                 CloneNotSupportedException
     {
         Candidate candidate = new Candidate();
-        for(Pile p : piles) {
+        for(Pile p : piles)
             candidate.getPiles().add(new Pile(p));
-            candidate.getPilesR().add(new Pile(p));
-        }
         return candidate;
     }
 
     List<Pile> getPiles() {
         return piles;
     }
-    List<Pile> getPilesR() {return pilesR;}
 
     List<Pile> getSortedPiles() {
         return pilesSortedByX;
     }
 
-     boolean isCircleCovered() {
-        sortPiles();
+    public boolean isCircleCovered() {
         checkIfNotContained();
         if(!checkIfCoversBorder())
             return false;
-        if(piles.size() > 2)
-        {
-            createDelaunayTriangulation();
-            if(!checkTriangles())
-                return false;
-        }
+        createDelaunayTriangulation();
+        if(!checkTriangles())
+            return false;
         return true;
     }
-    private void sortPiles() {
-        piles.sort((o1, o2) -> (int) (o2.getRadius() - o1.getRadius()));
-        pilesSortedByX.sort((o1, o2) -> (int) (o1.getX() - o2.getX()));
-    }
+
     private void checkIfNotContained() { // checks whether a bigger circle doesn't contain a smaller one
-        for (Pile pile : getPilesR()) {
-            for (int i = getPilesR().indexOf(pile) + 1; i < getPilesR().size(); i++) {
-                float distance = distanceBetweenPiles(getPilesR().get(i), pile);
-                if (distance + getPilesR().get(i).getRadius() <= pile.getRadius()) {
-                    getSortedPiles().remove(getPilesR().get(i));
-                    getPilesR().remove(i);
+        for (Pile pile : getPiles()) {
+            for (int i = getPiles().indexOf(pile) + 1; i < getPiles().size(); i++) {
+                float distance = distanceBetweenPiles(getPiles().get(i), pile);
+                if (distance + getPiles().get(i).getRadius() <= pile.getRadius()) {
+                    getSortedPiles().remove(getPiles().get(i));
+                    getPiles().remove(i);
                 }
             }
         }
@@ -89,13 +80,9 @@ public class Candidate implements Cloneable {
     private boolean checkIfCoversBorder() {
         Pile tree = new Pile(0.0f, 0.0f, R);
         Pile assistant = new Pile(0.0f, R, 0.0f);
-        for (Pile pile : getPilesR()) {
-            float distance = distanceBetweenPiles(tree, pile);
-            if (distance + R <= pile.getRadius())
-                return true;
-
+        for (Pile pile : getPiles()) {
             float[] intersections = findIntersections(tree, pile);
-            if (intersections!=null && intersections.length == 4) {
+            if (intersections.length == 4) {
                 float offset = (float) Math.acos(calculateCos(intersections[0], intersections[2], 0.0f, R));
                 float offset2 = (float) Math.acos(calculateCos(intersections[1], intersections[3], 0.0f, R));
                 if (intersections[0] < 0.0f)
@@ -119,7 +106,7 @@ public class Candidate implements Cloneable {
                 }
             }
         }
-        if (BorderCover != null && BorderCover.size() == 1 && BorderCover.get(0).x < 0.0f + EPS && BorderCover.get(0).y > 2 * Math.PI - EPS)
+        if (BorderCover.size() == 1 && BorderCover.get(0).x < 0.0f + EPS && BorderCover.get(0).y > 2 * Math.PI - EPS)
             return true;
         return false;
     }
@@ -154,7 +141,7 @@ public class Candidate implements Cloneable {
 
     }
 
-    private float calculateCos(float ax, float ay, float bx, float by) {
+    public float calculateCos(float ax, float ay, float bx, float by) {
         float scalarProduct, distAC, distBC;
         scalarProduct = ax * bx + ay * by;
         distAC = (float) (Math.sqrt(ax * ax + ay * ay));
@@ -172,7 +159,7 @@ public class Candidate implements Cloneable {
         float c = x * x + y * y + pile1.getRadius() * pile1.getRadius() - pile2.getRadius() * pile2.getRadius();
 
         float[] intersections = calculateIntersections(a, b, c, pile1.getRadius());
-        if (intersections !=null && intersections.length == 4) // translate back
+        if (intersections.length == 4) // translate back
         {
             intersections[0] += pile1.getX();
             intersections[1] += pile1.getX();
@@ -204,7 +191,7 @@ public class Candidate implements Cloneable {
     private void createDelaunayTriangulation() { //create triangulation only for 3+ piles
         Pile pile1 = getSortedPiles().get(0);
         Pile pile2 = getSortedPiles().get(1);
-        boolean visited[] = new boolean[getSortedPiles().size()];
+        boolean visited[] = new boolean[]{false};
         visited[0] = true;
         visited[1] = true;
 
@@ -256,7 +243,7 @@ public class Candidate implements Cloneable {
         return distanceBetweenToPoints(a.getX(),a.getY(),b.getX(),b.getY());
     }
     private float distanceBetweenToPoints(float ax,float ay,float bx,float by){
-        return (float) (Math.sqrt((ax - bx) * (ax - bx) + (ay - by) * (ay - by)));
+        return (float) (Math.sqrt(ax - bx) * (ax - bx) + (ay - by) * (ay - by));
     }
 
     private boolean checkTriangles(){
@@ -265,11 +252,11 @@ public class Candidate implements Cloneable {
             float[] intersections02 = findIntersections(triangle[0],triangle[2]);
             float[] intersections12 = findIntersections(triangle[2],triangle[1]);
             List<IntersectionPair> validIntersections = null;
-            if(intersections01 != null)
+            if(intersections01.length > 0)
                 validIntersections.add(new IntersectionPair( findRightIntersection(intersections01,triangle[2]),triangle,2));
-            if(intersections02 != null)
+            if(intersections02.length >0)
                 validIntersections.add(new IntersectionPair( findRightIntersection(intersections02,triangle[1]),triangle,1));
-            if(intersections12 != null)
+            if(intersections12.length >0)
                 validIntersections.add(new IntersectionPair( findRightIntersection(intersections12,triangle[0]),triangle,0));
 
             if(validIntersections == null || validIntersections.size() <=1)
@@ -293,8 +280,8 @@ public class Candidate implements Cloneable {
         int i = (opp + 1) %3;
         int j = (opp + 2) % 3;
         Straight straight = new Straight(validIntersections.get(0).piles[i],validIntersections.get(0).piles[j]);
-        if(straight.isOverTheStraight(validIntersections.get(0).intersection )
-                != straight.isOverTheStraight(new Vector2f(validIntersections.get(0).piles[opp])))
+        if(straight.isOverTheStaright(validIntersections.get(0).intersection )
+                != straight.isOverTheStaright(new Vector2f(validIntersections.get(0).piles[opp])))
             return true;
         return false;
 
@@ -305,8 +292,8 @@ public class Candidate implements Cloneable {
             int i = (opp + 1) %3;
             int j = (opp + 2) % 3;
             Straight straight = new Straight(intersectionPair.piles[i],intersectionPair.piles[j]);
-            if(straight.isOverTheStraight(intersectionPair.intersection )
-                    != straight.isOverTheStraight(new Vector2f(intersectionPair.piles[opp])))
+            if(straight.isOverTheStaright(intersectionPair.intersection )
+                    != straight.isOverTheStaright(new Vector2f(intersectionPair.piles[opp])))
                 return false;
         }
         return true;
@@ -328,7 +315,7 @@ public class Candidate implements Cloneable {
             p.setRadius(p.getRadius()*1.1f);
     }
 
-     void mutate(float sigma) {
+    void mutate(float sigma) {
         for(Pile p : piles)
             p.mutate(sigma);
     }

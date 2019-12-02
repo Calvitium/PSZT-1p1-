@@ -4,13 +4,14 @@ import java.io.*;
 import java.util.Scanner;
 
 public class Parameters {
-
-     static float R;
-     static float W1;
-     static float W2;
-    static float W3;
-    static int N;
-    static final float EPS = 0.000001f;
+;;
+;;;
+    public static float R;
+    public static float W1;
+    public static float W2;
+    public static float W3;
+    public static int N;
+    public static final float EPS = 0.000001f;
 
 
     public static void collectInput(String filePath){
@@ -18,8 +19,7 @@ public class Parameters {
         try {
             // use buffered reader to read line by line
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(
-
-            System.getProperty("user.dir")+"\\src\\Data\\" + filePath))));
+                    "C:\\Users\\mateu\\IdeaProjects\\PSZT-Przeszukiwanie\\src\\Data\\" + filePath))));
             String line;
             String[] numbers;
 
