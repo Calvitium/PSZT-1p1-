@@ -57,7 +57,7 @@ public class Candidate implements Cloneable {
         return pilesSortedByX;
     }
 
-    private boolean probIsCircleCovered(int n) {
+    boolean probIsCircleCovered(int n) {
         Vector2f point;
         for(int i = 0; i<n; i++) {
             point = new Vector2f(Vector2f.random());
@@ -88,13 +88,14 @@ public class Candidate implements Cloneable {
         piles.sort((o1, o2) -> (int) (o2.getRadius() - o1.getRadius()));
         pilesSortedByX.sort((o1, o2) -> (int) (o1.getX() - o2.getX()));
     }
-    private void checkIfNotContained() { // checks whether a bigger circle doesn't contain a smaller one
-        for (Pile pile : getPilesR()) {
-            for (int i = getPilesR().indexOf(pile) + 1; i < getPilesR().size(); i++) {
-                float distance = distanceBetweenPiles(getPilesR().get(i), pile);
-                if (distance + getPilesR().get(i).getRadius() <= pile.getRadius()) {
-                    getSortedPiles().remove(getPilesR().get(i));
-                    getPilesR().remove(i);
+    void checkIfNotContained() { // checks whether a bigger circle doesn't contain a smaller one
+        for (Pile pile : getPiles()) {
+            for (int i = getPiles().indexOf(pile) + 1; i < getPiles().size(); i++) {
+                float distance = distanceBetweenPiles(getPiles().get(i), pile);
+                if (distance + getPiles().get(i).getRadius() <= pile.getRadius()) {
+                    //getSortedPiles().remove(getPilesR().get(i));
+                    //getPilesR().remove(i);
+                    getPiles().remove(i);
                 }
             }
         }
@@ -337,14 +338,20 @@ public class Candidate implements Cloneable {
 
 
 
-    private void resize() {
-        for(Pile p : piles)
-            p.setRadius(p.getRadius()*1.1f);
+   void resize() {
+        int a;
+        if(piles.size() > 5)
+            a = 2+2;
+        for(Pile p : piles) {
+            float scale= 1.01f + (float)Math.cbrt((Math.abs(R-p.getRadius())/R));
+            p.setRadius(p.getRadius() * scale);
+        }
     }
 
      void mutate(float sigma) {
         for(Pile p : piles)
             p.mutate(sigma);
+
     }
 
 }

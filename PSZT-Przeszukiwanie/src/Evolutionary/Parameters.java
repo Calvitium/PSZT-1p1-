@@ -19,7 +19,7 @@ public class Parameters {
             // use buffered reader to read line by line
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(
 
-            System.getProperty("user.dir")+"\\src\\Data\\" + filePath))));
+            System.getProperty("user.dir")+"\\PSZT-Przeszukiwanie\\src\\Data\\" + filePath))));
             String line;
             String[] numbers;
 

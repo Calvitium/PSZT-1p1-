@@ -36,7 +36,10 @@ public class Algorithm1p1 extends Thread {
             } catch (CloneNotSupportedException e) {
                 e.printStackTrace();
             }
+
         }
+        System.out.println(result.getPiles().size());
+        result.checkIfNotContained();
     }
 
     private Candidate runProcedure(int N) throws CloneNotSupportedException {
@@ -53,11 +56,11 @@ public class Algorithm1p1 extends Thread {
             if (++generation % M_LAST_ITERATIONS == 0)
                 /*5*/ {
                     updateSigma();
-                    System.out.print("Generation: " + generation + ",  ");
-                    showResult(x);
+                    //System.out.print("Generation: " + generation + ",  ");
+                    //showResult(x);
             }
             /*6*/
-        } while (generation<N * 100);
+        } while (generation<200);
         M_LastCandidates.clear();
         chosenY = 0;
         generation = 0;
@@ -93,6 +96,9 @@ public class Algorithm1p1 extends Thread {
     private Candidate generateDescendant(Candidate x) throws CloneNotSupportedException {
         Candidate descentant = (Candidate) x.clone();
         descentant.mutate(sigma);
+        while(!descentant.probIsCircleCovered(1000)) {
+            descentant.mutate(sigma);
+        }
         return descentant;
     }
 

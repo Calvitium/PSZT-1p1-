@@ -10,11 +10,11 @@ import static java.lang.Math.*;
     private float radius;
 
     Pile() {
-        float a = (float)(Math.random() * 2 *PI);
-        float r = (float)(R * sqrt(Math.random()));
+        float a = (float) (Math.random() * 2 * PI);
+        float r = (float) (R * sqrt(Math.random()));
         X = (float) (r * cos(a));
-        Y = (float)(r * sin(a));
-        radius = (float)(Math.random() * R);
+        Y = (float) (r * sin(a));
+        radius = R / 10.0f;
     }
      Pile(float x, float y, float radius) {
         this.X = x;
@@ -54,6 +54,8 @@ import static java.lang.Math.*;
         X = tempX;
         Y = tempY;
         radius = (float) (radius + r.nextGaussian()*sigma*R);
+        if(radius < 0)
+            radius = -radius;
     }
 
      public boolean isPointInRange(Vector2f point) {
