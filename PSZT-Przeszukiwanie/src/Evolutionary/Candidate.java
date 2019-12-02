@@ -7,28 +7,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Candidate implements Cloneable {
-    private List<Pile> pilesR;
     private List<Pile> piles;
-    private List<Pile> pilesSortedByX;
-    private List<Pile[]> triangles;
-    private List<Vector2f> BorderCover;
 
-
-    Candidate(int n)  {
+    Candidate(int n) {
         piles = new ArrayList<>();
         pilesR = new ArrayList<>();
         pilesSortedByX = new ArrayList<>();
         triangles = new ArrayList<>();
         BorderCover = new ArrayList<>();
 
-        for(int i = 0; i<n; i++) {
+        for (int i = 0; i < n; i++) {
             piles.add(new Pile());
             pilesR.add(piles.get(i));
             pilesSortedByX.add(piles.get(i));
         }
-        while(!probIsCircleCovered(1000))
+        while (!probIsCircleCovered(1000))
             resize();
-
     }
 
     private Candidate() {
@@ -37,31 +31,20 @@ public class Candidate implements Cloneable {
     }
 
     @Override
-    public Object clone() throws
-                CloneNotSupportedException
-    {
+    public Object clone() {
         Candidate candidate = new Candidate();
-        for(Pile p : piles) {
+        for (Pile p : piles) {
             candidate.getPiles().add(new Pile(p));
             candidate.getPilesR().add(new Pile(p));
         }
         return candidate;
     }
 
-    List<Pile> getPiles() {
-        return piles;
-    }
-    List<Pile> getPilesR() {return pilesR;}
-
-    List<Pile> getSortedPiles() {
-        return pilesSortedByX;
-    }
-
     boolean probIsCircleCovered(int n) {
         Vector2f point;
-        for(int i = 0; i<n; i++) {
+        for (int i = 0; i < n; i++) {
             point = new Vector2f(Vector2f.random());
-            for(Pile p : piles) {
+            for (Pile p : piles) {
                 if (p.isPointInRange(point))
                     break;
                 else if (piles.get(piles.size() - 1) == p && !p.isPointInRange(point))
@@ -71,34 +54,55 @@ public class Candidate implements Cloneable {
         return true;
     }
 
+    void resize() {
+        for (Pile p : piles) {
+            float scale = 1.01f + (float) Math.cbrt((Math.abs(R - p.getRadius()) / R));
+            p.setRadius(p.getRadius() * scale);
+        }
+    }
+
+    void mutate(float sigma) {
+        for (Pile p : piles)
+            p.mutate(sigma);
+    }
+
+    void checkIfNotContained() { // checks whether a bigger circle doesn't contain a smaller one
+        for (int j = 0; j < getPiles().size(); j++) {
+            Pile pile = getPiles().get(j);
+            for (int i = getPiles().indexOf(pile) + 1; i < getPiles().size(); i++)
+                if (distanceBetweenPiles(getPiles().get(i), pile) + getPiles().get(i).getRadius() <= pile.getRadius())
+                    getPiles().remove(i);
+        }
+    }
+
+    List<Pile> getPiles(){
+        return piles;
+    }
+
+    List<Pile> getPilesR() {
+        return pilesR;
+    }
+
+    List<Pile> getSortedPiles() {
+        return pilesSortedByX;
+    }
+
     boolean isCircleCovered() {
         sortPiles();
         checkIfNotContained();
-        if(!checkIfCoversBorder())
+        if (!checkIfCoversBorder())
             return false;
-        if(piles.size() > 2)
-        {
+        if (piles.size() > 2) {
             createDelaunayTriangulation();
-            if(!checkTriangles())
+            if (!checkTriangles())
                 return false;
         }
         return true;
     }
+
     private void sortPiles() {
         piles.sort((o1, o2) -> (int) (o2.getRadius() - o1.getRadius()));
         pilesSortedByX.sort((o1, o2) -> (int) (o1.getX() - o2.getX()));
-    }
-    void checkIfNotContained() { // checks whether a bigger circle doesn't contain a smaller one
-        for (Pile pile : getPiles()) {
-            for (int i = getPiles().indexOf(pile) + 1; i < getPiles().size(); i++) {
-                float distance = distanceBetweenPiles(getPiles().get(i), pile);
-                if (distance + getPiles().get(i).getRadius() <= pile.getRadius()) {
-                    //getSortedPiles().remove(getPilesR().get(i));
-                    //getPilesR().remove(i);
-                    getPiles().remove(i);
-                }
-            }
-        }
     }
 
     private boolean checkIfCoversBorder() {
@@ -110,7 +114,7 @@ public class Candidate implements Cloneable {
                 return true;
 
             float[] intersections = findIntersections(tree, pile);
-            if (intersections!=null && intersections.length == 4) {
+            if (intersections != null && intersections.length == 4) {
                 float offset = (float) Math.acos(calculateCos(intersections[0], intersections[2], 0.0f, R));
                 float offset2 = (float) Math.acos(calculateCos(intersections[1], intersections[3], 0.0f, R));
                 if (intersections[0] < 0.0f)
@@ -187,7 +191,7 @@ public class Candidate implements Cloneable {
         float c = x * x + y * y + pile1.getRadius() * pile1.getRadius() - pile2.getRadius() * pile2.getRadius();
 
         float[] intersections = calculateIntersections(a, b, c, pile1.getRadius());
-        if (intersections !=null && intersections.length == 4) // translate back
+        if (intersections != null && intersections.length == 4) // translate back
         {
             intersections[0] += pile1.getX();
             intersections[1] += pile1.getX();
@@ -215,7 +219,6 @@ public class Candidate implements Cloneable {
         }
     }
 
-    //Not fully working yet
     private void createDelaunayTriangulation() { //create triangulation only for 3+ piles
         Pile pile1 = getSortedPiles().get(0);
         Pile pile2 = getSortedPiles().get(1);
@@ -249,8 +252,7 @@ public class Candidate implements Cloneable {
 
     }
 
-    private float calculateCos(Pile a, Pile b, Pile c) // calculates cos of the angle between ac and bc
-    {
+    private float calculateCos(Pile a, Pile b, Pile c) {
         float acX, acY, bcX, bcY;//create vectors ac and ab
         acX = c.getX() - a.getX();
         acY = c.getY() - a.getY();
@@ -266,92 +268,77 @@ public class Candidate implements Cloneable {
 
     }
 
-
     private float distanceBetweenPiles(Pile a, Pile b) {
-        return distanceBetweenToPoints(a.getX(),a.getY(),b.getX(),b.getY());
+        return distanceBetweenToPoints(a.getX(), a.getY(), b.getX(), b.getY());
     }
-    private float distanceBetweenToPoints(float ax,float ay,float bx,float by){
+
+    private float distanceBetweenToPoints(float ax, float ay, float bx, float by) {
         return (float) (Math.sqrt((ax - bx) * (ax - bx) + (ay - by) * (ay - by)));
     }
 
-    private boolean checkTriangles(){
-        for(Pile[] triangle:triangles) {
-            float[] intersections01 = findIntersections(triangle[0],triangle[1]);
-            float[] intersections02 = findIntersections(triangle[0],triangle[2]);
-            float[] intersections12 = findIntersections(triangle[2],triangle[1]);
+    private boolean checkTriangles() {
+        for (Pile[] triangle : triangles) {
+            float[] intersections01 = findIntersections(triangle[0], triangle[1]);
+            float[] intersections02 = findIntersections(triangle[0], triangle[2]);
+            float[] intersections12 = findIntersections(triangle[2], triangle[1]);
             List<IntersectionPair> validIntersections = null;
-            if(intersections01 != null)
-                validIntersections.add(new IntersectionPair( findRightIntersection(intersections01,triangle[2]),triangle,2));
-            if(intersections02 != null)
-                validIntersections.add(new IntersectionPair( findRightIntersection(intersections02,triangle[1]),triangle,1));
-            if(intersections12 != null)
-                validIntersections.add(new IntersectionPair( findRightIntersection(intersections12,triangle[0]),triangle,0));
+            if (intersections01 != null)
+                validIntersections.add(new IntersectionPair(findRightIntersection(intersections01, triangle[2]), triangle, 2));
+            if (intersections02 != null)
+                validIntersections.add(new IntersectionPair(findRightIntersection(intersections02, triangle[1]), triangle, 1));
+            if (intersections12 != null)
+                validIntersections.add(new IntersectionPair(findRightIntersection(intersections12, triangle[0]), triangle, 0));
 
-            if(validIntersections == null || validIntersections.size() <=1)
+            if (validIntersections == null || validIntersections.size() <= 1)
                 return false;
-            else if(validIntersections.size() == 2)//to finish
-                if(!isTriangleCovered2(validIntersections))
+            else if (validIntersections.size() == 2)//to finish
+                if (!isTriangleCovered2(validIntersections))
                     return false;
-            else{ // validIntersections.size() == 3
-                if(!isTriangleCovered3(validIntersections))
-                    return false;
-            }
+                else { // validIntersections.size() == 3
+                    if (!isTriangleCovered3(validIntersections))
+                        return false;
+                }
 
         }
         return true;
     }
 
-
-
-    private boolean isTriangleCovered2(List<IntersectionPair> validIntersections){
+    private boolean isTriangleCovered2(List<IntersectionPair> validIntersections) {
         int opp = validIntersections.get(0).opp;
-        int i = (opp + 1) %3;
+        int i = (opp + 1) % 3;
         int j = (opp + 2) % 3;
-        Straight straight = new Straight(validIntersections.get(0).piles[i],validIntersections.get(0).piles[j]);
-        if(straight.isOverTheStraight(validIntersections.get(0).intersection )
+        Straight straight = new Straight(validIntersections.get(0).piles[i], validIntersections.get(0).piles[j]);
+        if (straight.isOverTheStraight(validIntersections.get(0).intersection)
                 != straight.isOverTheStraight(new Vector2f(validIntersections.get(0).piles[opp])))
             return true;
         return false;
 
     }
+
     private boolean isTriangleCovered3(List<IntersectionPair> validIntersections) {
-        for(IntersectionPair intersectionPair:validIntersections){
+        for (IntersectionPair intersectionPair : validIntersections) {
             int opp = intersectionPair.opp;
-            int i = (opp + 1) %3;
+            int i = (opp + 1) % 3;
             int j = (opp + 2) % 3;
-            Straight straight = new Straight(intersectionPair.piles[i],intersectionPair.piles[j]);
-            if(straight.isOverTheStraight(intersectionPair.intersection )
+            Straight straight = new Straight(intersectionPair.piles[i], intersectionPair.piles[j]);
+            if (straight.isOverTheStraight(intersectionPair.intersection)
                     != straight.isOverTheStraight(new Vector2f(intersectionPair.piles[opp])))
                 return false;
         }
         return true;
     }
 
-    private Vector2f findRightIntersection(float[] intersection,Pile vertex){
-        float dis1 = distanceBetweenToPoints(intersection[0],intersection[2],vertex.getX(),vertex.getY());
-        float dis2 = distanceBetweenToPoints(intersection[1],intersection[3],vertex.getX(),vertex.getY());
-        if(dis1 > dis2)
-           return new Vector2f(intersection[1],intersection[3]);
+    private Vector2f findRightIntersection(float[] intersection, Pile vertex) {
+        float dis1 = distanceBetweenToPoints(intersection[0], intersection[2], vertex.getX(), vertex.getY());
+        float dis2 = distanceBetweenToPoints(intersection[1], intersection[3], vertex.getX(), vertex.getY());
+        if (dis1 > dis2)
+            return new Vector2f(intersection[1], intersection[3]);
         else
-            return new Vector2f(intersection[0],intersection[2]);
+            return new Vector2f(intersection[0], intersection[2]);
     }
 
-
-
-   void resize() {
-        int a;
-        if(piles.size() > 5)
-            a = 2+2;
-        for(Pile p : piles) {
-            float scale= 1.01f + (float)Math.cbrt((Math.abs(R-p.getRadius())/R));
-            p.setRadius(p.getRadius() * scale);
-        }
-    }
-
-     void mutate(float sigma) {
-        for(Pile p : piles)
-            p.mutate(sigma);
-
-    }
-
+    private List<Pile> pilesR;
+    private List<Pile> pilesSortedByX;
+    private List<Pile[]> triangles;
+    private List<Vector2f> BorderCover;
 }

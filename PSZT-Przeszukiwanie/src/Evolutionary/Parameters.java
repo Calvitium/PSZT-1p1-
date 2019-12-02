@@ -4,43 +4,28 @@ import java.io.*;
 import java.util.Scanner;
 
 public class Parameters {
-
-     static float R;
-     static float W1;
-     static float W2;
+    static float R;
+    static float W1;
+    static float W2;
     static float W3;
     static int N;
     static final float EPS = 0.000001f;
 
 
-    public static void collectInput(String filePath){
+    public static void collectInput(String fileName) throws IOException {
         BufferedReader reader = null;
-        try {
+        String pathname = System.getProperty("user.dir") + "\\src\\Data\\" + fileName;
             // use buffered reader to read line by line
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(
-
-            System.getProperty("user.dir")+"\\PSZT-Przeszukiwanie\\src\\Data\\" + filePath))));
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(pathname))));
             String line;
             String[] numbers;
-
             line = reader.readLine();
             numbers = line.split(" ", 5);
-            R  = Float.valueOf(numbers[0].trim());
+            R = Float.valueOf(numbers[0].trim());
             W1 = Float.valueOf(numbers[1].trim());
             W2 = Float.valueOf(numbers[2].trim());
             W3 = Float.valueOf(numbers[3].trim());
-            N  = Integer.valueOf(numbers[4].trim());
-        } catch (IOException e) {
-            System.err.println("Exception:" + e.toString());
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    System.err.println("Exception:" + e.toString());
-                }
-            }
-        }
+            N = Integer.valueOf(numbers[4].trim());
     }
 
     public static void collectInput() {
@@ -58,6 +43,6 @@ public class Parameters {
     }
 
     public static void showParameters() {
-        System.out.println("R = " + R + ", W1 = " + W1 + ", W2 = " + W2 + ", W3 = " + W3 + ", N = " + N);
+        System.out.println("\nGiven input: R = " + R + ", W1 = " + W1 + ", W2 = " + W2 + ", W3 = " + W3 + ", N = " + N + "\n");
     }
 }
